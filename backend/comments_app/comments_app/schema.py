@@ -1,7 +1,7 @@
 import graphene
 
-from comments_service.schema import CommentType, CreateComment
-from auth_service.schema import RegisterUser
+from comments_service.schema import CommentType, CreateComment, CommentsMutations
+from auth_service.schema import AuthMutations
 
 class Query(graphene.ObjectType):
     all_comments = graphene.List(CommentType)
@@ -9,9 +9,7 @@ class Query(graphene.ObjectType):
     def resolve_all_comments(root, info):
         return CreateComment.objects.all()
 
-class Mutation(graphene.ObjectType):
-    create_comment = CreateComment.Field()
-    register_user = RegisterUser.Field()
-    
+class Mutation(AuthMutations, CommentsMutations, graphene.ObjectType):
+    pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

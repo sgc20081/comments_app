@@ -18,3 +18,6 @@ class CreateComment(graphene.Mutation):
 
         comment = Comment.objects.create(text=text, author=user)
         return CreateComment(comment=comment)
+    
+class CommentsMutations(graphene.ObjectType):
+    create_comment = CreateComment.Field()  
