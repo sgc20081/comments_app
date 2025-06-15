@@ -3,8 +3,8 @@ from django.db import models
 # Create your models here.
 
 class CustomUser(models.Model):
-    username = models.CharField(max_length=15)
-    homepage = models.URLField(blank=True)
+    username = models.CharField(max_length=15, unique=True)
+    homepage = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return (f'({self.__class__.__name__}: username = "{self.username}", homepage = "{self.homepage}")')
