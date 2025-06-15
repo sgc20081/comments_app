@@ -1,3 +1,2 @@
 **/backend/comments_app/comments_app/comments_service/migrations
-**/backend/comments_app/comments_app/auth_service/migrations
 **/backend/comments_app/comments_app/db.sqlite3

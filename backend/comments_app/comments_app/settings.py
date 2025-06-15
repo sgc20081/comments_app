@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'auth_service',
     'comments_service',
     'graphene_django',
     'django.contrib.admin',
@@ -127,7 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication
 
-AUTH_USER_MODEL = 'comments_service.CustomUser'
+AUTH_USER_MODEL = 'auth_service.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
@@ -138,7 +139,7 @@ AUTHENTICATION_BACKENDS = [
 # GraphQL Settings
 
 GRAPHENE = {
-    'SCHEMA': 'comments_service.schema.schema',
+    'SCHEMA': 'comments_app.schema.schema',
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
