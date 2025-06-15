@@ -11,7 +11,7 @@ class Query(graphene.ObjectType):
 
 class Mutation(graphene.ObjectType):
     create_comment = CreateComment.Field()
-    register_user = RegisterUser.field()
+    register_user = RegisterUser.Field()
     
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
