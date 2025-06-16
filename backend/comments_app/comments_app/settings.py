@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +34,9 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'auth_service',
     'comments_service',
+    'rest_framework',
     'graphene_django',
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -134,6 +137,26 @@ AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
+# Authorization
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+}
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    # 'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    # "JWT_EXPIRATION_DELTA": timedelta(minutes=5),
+    # "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
+    # 'JWT_ALLOW_ANY_CLASSES': [
+    #     'auth_service.schema.Mutation',
+    # ],
+    'JWT_COOKIE_NAME': 'access_token',
+    'JWT_REFRESH_TOKEN_COOKIE_NAME': 'refresh_token',
+}
 
 
 # GraphQL Settings
