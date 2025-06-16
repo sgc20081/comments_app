@@ -1,13 +1,29 @@
 from datetime import datetime
 
+from rest_framework import generics
 from rest_framework.response import Response
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
-from .serializers import CustomTokenObtainPairSerializer
+from .serializers import CustomUserSerializer, CustomTokenObtainPairSerializer
+
+User = get_user_model()
+
+class RegisterAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        try:
+            content = super().create(request, *args, **kwargs)
+        except Exception as e:
+            print(f'Error: {self.__class__.__name__}: {e}')
+            return Response({'errors': str(e)}, status=500)
+        return Response({'success': True, 'status': 200, 'message': 'User registered successfully'})
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -62,6 +78,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             # if not errors:
             #     errors = str(e)
             return Response({'errors': errors}, status=500)
+        
         
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
