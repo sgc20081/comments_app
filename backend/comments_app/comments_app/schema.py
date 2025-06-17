@@ -1,14 +1,14 @@
-import graphene
+# import graphene
+import strawberry
 
-from comments_service.schema import CommentType, CreateComment, CommentsMutations
+from comments_service.schema import CommentsQuery, CommentsMutation
 
-class Query(graphene.ObjectType):
-    all_comments = graphene.List(CommentType)
-
-    def resolve_all_comments(root, info):
-        return CreateComment.objects.all()
-
-class Mutation(CommentsMutations, graphene.ObjectType):
+@strawberry.type
+class Query(CommentsQuery):
     pass
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+@strawberry.type
+class Mutation(CommentsMutation):
+    pass
+
+schema = strawberry.Schema(query=Query, mutation=Mutation)

@@ -2,9 +2,12 @@ from datetime import datetime
 
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
+from rest_framework import exceptions
 
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -20,9 +23,12 @@ class RegisterAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         try:
             content = super().create(request, *args, **kwargs)
+        except ValidationError as e_val:
+            print(f'Error: {self.__class__.__name__}: {e_val}')
+            return Response({'success': False, 'errors': str(e)}, status=400)
         except Exception as e:
             print(f'Error: {self.__class__.__name__}: {e}')
-            return Response({'errors': str(e)}, status=500)
+            return Response({'success': False, 'errors': str(e)}, status=500)
         return Response({'success': True, 'status': 200, 'message': 'User registered successfully'})
 
 
@@ -52,7 +58,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             response.set_cookie(
                 key='access_token',
                 value=str(access),
-                httponly=False,
+                httponly=True,
                 secure=True,
                 samesite='None',
                 max_age=access_lifetime,
@@ -68,23 +74,29 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 max_age=refresh_lifetime,
             )
             
-            response.data = {'access_exp': access_exp, 'refresh_exp': refresh_exp}
+            response.data = {'success': True, 'access_exp': access_exp, 'refresh_exp': refresh_exp}
 
             return response
+        except ValidationError as e_val:
+            print(f'Error: {self.__class__.__name__}: {e_val}')
+            return Response({'success': False, 'errors': str(e)}, status=400)
         except Exception as e:
             print(f'Error: {self.__class__.__name__}: {e}')
-            errors = None
-            # errors = errordetail_to_dict(e)
-            # if not errors:
-            #     errors = str(e)
-            return Response({'errors': errors}, status=500)
+            return Response({'success': False, 'errors': str(e)}, status=500)
         
         
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
-        refresh_token = request.COOKIES.get('refresh_token')
-        if not refresh_token:
-            return Response({'error': 'No refresh token in cookies'}, status=401)
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+        
+            if not refresh_token:
+                return Response({'success': False, 'error': 'No refresh token in cookies'}, status=401)
+        
+        except (InvalidToken, TokenError) as e:
+            print(f'Error: {self.__class__.__name__}: {e}')
+            return Response({'success': False, 'error': 'Invalid refresh token'}, status=401)
+            
 
         request.data['refresh'] = refresh_token
         response = super().post(request, *args, **kwargs)
@@ -104,5 +116,5 @@ class CookieTokenRefreshView(TokenRefreshView):
 
             now = datetime.now()
             access_exp = now + access_lifetime
-            response.data = {'access_exp': access_exp}
+            response.data = {'success': True, 'access_exp': access_exp}
         return response

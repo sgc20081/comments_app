@@ -35,8 +35,10 @@ INSTALLED_APPS = [
     'auth_service',
     'comments_service',
     'rest_framework',
+    'rest_framework_simplejwt',
     'graphene_django',
-    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",
+    'channels',
+    'strawberry.django',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'comments_service.middleware.StrawberryJWTAuthMiddleware',
 ]
 
 ROOT_URLCONF = 'comments_app.urls'
@@ -74,6 +77,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'comments_app.wsgi.application'
+
+ASGI_APPLICATION = "comments_app.asgi.application"
 
 
 # Database
@@ -134,7 +139,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'auth_service.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -146,24 +150,10 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
-GRAPHQL_JWT = {
-    'JWT_VERIFY_EXPIRATION': True,
-    # 'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
-    # "JWT_EXPIRATION_DELTA": timedelta(minutes=5),
-    # "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
-    # 'JWT_ALLOW_ANY_CLASSES': [
-    #     'auth_service.schema.Mutation',
-    # ],
-    'JWT_COOKIE_NAME': 'access_token',
-    'JWT_REFRESH_TOKEN_COOKIE_NAME': 'refresh_token',
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
-
 
 # GraphQL Settings
-
-GRAPHENE = {
-    'SCHEMA': 'comments_app.schema.schema',
-    'MIDDLEWARE': [
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
-    ],
-}

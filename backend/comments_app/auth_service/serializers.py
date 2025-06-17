@@ -4,7 +4,7 @@ import uuid
 import hashlib
 
 from rest_framework import serializers
-from rest_framework.exceptions import ErrorDetail
+from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from django.contrib.auth import get_user_model
@@ -24,7 +24,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
 
         if User.objects.filter(username=validated_data['username']).exists():
-            raise serializers.ValidationError(
+            raise ValidationError(
                 [ErrorDetail("User with this username already exists")]
             )
 
@@ -47,12 +47,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         try:
             user = CustomUser.objects.get(username=username)
         except CustomUser.DoesNotExist:
-            raise serializers.ValidationError({
+            raise ValidationError({
                 'username': [ErrorDetail("Wrong password or user does not exist")]
             })
 
         if not user.check_password(password):
-            raise serializers.ValidationError({
+            raise ValidationError({
                 'username': [ErrorDetail("Wrong password or user does not exist")]
             })
 

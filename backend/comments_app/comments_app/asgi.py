@@ -8,9 +8,14 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 """
 
 import os
-
 from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from strawberry.channels import GraphQLProtocolTypeRouter
+from .schema import schema  # импорт схемы
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'comments_app.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "your_project.settings")
 
-application = get_asgi_application()
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": GraphQLProtocolTypeRouter(schema),
+})
